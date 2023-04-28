@@ -16,7 +16,8 @@ export const makeContent = (block: ArenaBlock): string => {
 		case 'Channel': {
 			// @ts-ignore
 			const path = `${block.owner_slug}/${block.slug}`;
-			return `[${path}](https://www.are.na/${path})`;
+			// @ts-ignore
+			return `${block.owner_slug} / [${block.title}](https://www.are.na/${path})`;
 		}
 		case 'Media':
 		case 'Attachment':

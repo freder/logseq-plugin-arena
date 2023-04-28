@@ -95,10 +95,10 @@ const main = async () => {
 					page.uuid,
 					makeContent(block),
 					{
-						properties: {
+						/* properties: {
 							class: block.class,
 							'block-url': `https://www.are.na/block/${block.id}`,
-						},
+						}, */
 					}
 				);
 			}
