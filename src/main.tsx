@@ -1,10 +1,11 @@
 import '@logseq/libs';
-import { type ArenaChannelContents, ArenaClient, ArenaBlock } from 'arena-ts';
+import { ArenaClient, ArenaBlock } from 'arena-ts';
 import * as R from 'ramda';
 import type {
 	SettingSchemaDesc,
 	// SimpleCommandKeybinding
 } from '@logseq/libs/dist/LSPlugin';
+import { makeContent } from './utils';
 
 
 const accessToken = 'arenaAccessToken';
@@ -49,8 +50,9 @@ const main = async () => {
 				alert('Please set your Are.na access token in the plugin settings');
 				return;
 			}
+			// TODO: prompt alternative
 			// const response = prompt('Enter the URL or slug of the channel to import');
-			const response = 'https://www.are.na/frederic-brodbeck/designer-studio-self-descriptions';
+			const response = 'https://www.are.na/frederic-brodbeck/trying-to-break-up-with-adobe';
 			if (!response) {
 				return;
 			}
@@ -87,15 +89,15 @@ const main = async () => {
 				console.error('could not create page');
 				return;
 			}
+			// TODO: all the blocks
 			for (const block of R.take(20, channelContents)) {
 				await logseq.Editor.appendBlockInPage(
 					page.uuid,
-					[
-						block.content
-					].join('\n'),
+					makeContent(block),
 					{
 						properties: {
-							url: `https://www.are.na/block/${block.id}`,
+							class: block.class,
+							'block-url': `https://www.are.na/block/${block.id}`,
 						},
 					}
 				);
