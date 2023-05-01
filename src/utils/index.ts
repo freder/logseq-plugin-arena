@@ -19,7 +19,10 @@ export const makeContent = (block: ArenaBlock): string => {
 			// @ts-ignore
 			return `${block.owner_slug} / [${block.title}](https://www.are.na/${path})`;
 		}
-		case 'Media':
+		case 'Media': {
+			const img = `![](${block.image?.thumb?.url})`;
+			return `[${block.source?.title}](${block.source?.url})\n${img}`;
+		}
 		case 'Attachment':
 		default: {
 			return `Not implemented yet: ${block.class}`;
