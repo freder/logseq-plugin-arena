@@ -1,11 +1,12 @@
 import '@logseq/libs';
-import { ArenaClient, ArenaBlock } from 'arena-ts';
 import * as R from 'ramda';
 import type {
 	SettingSchemaDesc,
 	// SimpleCommandKeybinding
 } from '@logseq/libs/dist/LSPlugin';
 import { makeContent } from './utils';
+import { getChannel, getChannelBlocks, perPage } from './utils/api';
+import type { ArenaBlock } from 'arena-ts/dist/arena_api_types';
 
 
 const accessToken = 'arenaAccessToken';
@@ -52,32 +53,20 @@ const main = async () => {
 			}
 			// TODO: prompt alternative
 			// const response = prompt('Enter the URL or slug of the channel to import');
-			const response = 'https://www.are.na/frederic-brodbeck/trying-to-break-up-with-adobe';
+			const response = 'https://www.are.na/frederic-brodbeck/type-tool-project';
 			if (!response) {
 				return;
 			}
-			const client = new ArenaClient({ token });
 			const slug = R.last(response.split('/'));
 			if (!slug) {
 				return;
 			}
-			console.log(slug);
-			const channel = await client.channel(slug);
-			let channelContents: ArenaBlock[] = [];
-			let pageNum = 1;
-			while (true) {
-				const { contents } = await channel.contents({ page: pageNum });
-				if (!contents || contents.length === 0) {
-					break;
-				}
-				channelContents = channelContents.concat(contents as unknown as ArenaBlock[]);
-				pageNum += 1;
-			}
-			console.log(channelContents);
+
+			const channel = await getChannel(token, slug);
+
 			// create new page
 			const page = await logseq.Editor.createPage(
-				// TODO: use channel title
-				`Are.na channel: ${slug}`,
+				`Are.na channel: ${channel.title}`,
 				{},
 				{
 					format: 'markdown',
@@ -89,18 +78,38 @@ const main = async () => {
 				console.error('could not create page');
 				return;
 			}
-			// TODO: all the blocks
-			for (const block of R.take(20, channelContents)) {
-				await logseq.Editor.appendBlockInPage(
-					page.uuid,
-					makeContent(block),
-					{
-						/* properties: {
-							class: block.class,
-							'block-url': `https://www.are.na/block/${block.id}`,
-						}, */
-					}
+
+			const totalPages = Math.ceil(channel.length / perPage);
+			const pageNums = R.reverse(
+				R.range(1, totalPages + 1)
+			);
+			let firstBlockId: string | undefined;
+			for (const pageNum of [pageNums[0]]) {
+				const { contents } = await getChannelBlocks(
+					token, channel.id, pageNum
 				);
+				const blocks = contents as ArenaBlock[];
+				for (const block of R.reverse(blocks)) {
+					// console.log(block);
+					const properties = {
+						class: block.class,
+						'block-url': `https://www.are.na/block/${block.id}`,
+						// @ts-ignore
+						'connected-at': block.connected_at,
+					}
+					const b = await logseq.Editor.appendBlockInPage(
+						page.uuid,
+						makeContent(block),
+						{ properties, }
+					);
+					if (!firstBlockId && b) {
+						firstBlockId = b.uuid;
+					}
+				}
+			}
+
+			if (firstBlockId) {
+				logseq.Editor.scrollToBlockInPage(page.uuid, firstBlockId);
 			}
 		}
 	);
