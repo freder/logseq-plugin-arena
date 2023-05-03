@@ -76,7 +76,8 @@ export const makeContent = (block: ArenaBlock): string => {
 		}
 		case 'Attachment':
 		default: {
-			return `Not implemented yet: ${block.class}`;
+			const img = `![](${block.image?.thumb?.url})`;
+			return `[${block.attachment?.file_name}](${block.attachment?.url})\n${img}`;
 		}
 	}
 };
