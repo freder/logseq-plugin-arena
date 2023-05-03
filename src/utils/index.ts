@@ -1,6 +1,24 @@
 import type { ArenaBlock } from 'arena-ts';
 
 
+const baseUrl = 'https://www.are.na';
+
+
+export const makeProperties = (arenaBlock: ArenaBlock) => {
+	const {
+		id,
+		// @ts-ignore
+		connected_at
+	} = arenaBlock;
+	const properties = {
+		// class: arenaBlock.class,
+		'block-url': `${baseUrl}/block/${id}`,
+		'connected-at': connected_at,
+	};
+	return properties;
+};
+
+
 export const makeContent = (block: ArenaBlock): string => {
 	switch (block.class) {
 		case 'Text': {
@@ -17,7 +35,7 @@ export const makeContent = (block: ArenaBlock): string => {
 			// @ts-ignore
 			const path = `${block.owner_slug}/${block.slug}`;
 			// @ts-ignore
-			return `${block.owner_slug} / [${block.title}](https://www.are.na/${path})`;
+			return `${block.owner_slug} / [${block.title}](${baseUrl}/${path})`;
 		}
 		case 'Media': {
 			const img = `![](${block.image?.thumb?.url})`;

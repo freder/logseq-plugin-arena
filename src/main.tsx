@@ -4,7 +4,7 @@ import type {
 	SettingSchemaDesc,
 	// SimpleCommandKeybinding
 } from '@logseq/libs/dist/LSPlugin';
-import { makeContent } from './utils';
+import { makeContent, makeProperties } from './utils';
 import { getChannel, getChannelBlocks, perPage } from './utils/api';
 import type { ArenaBlock } from 'arena-ts/dist/arena_api_types';
 
@@ -83,24 +83,19 @@ const main = async () => {
 			const pageNums = R.reverse(
 				R.range(1, totalPages + 1)
 			);
-			let firstBlockId: string | undefined;
+
+			let firstBlockId: string | undefined = undefined;
+
 			for (const pageNum of [pageNums[0]]) {
 				const { contents } = await getChannelBlocks(
 					token, channel.id, pageNum
 				);
-				const blocks = contents as ArenaBlock[];
-				for (const block of R.reverse(blocks)) {
-					// console.log(block);
-					const properties = {
-						class: block.class,
-						'block-url': `https://www.are.na/block/${block.id}`,
-						// @ts-ignore
-						'connected-at': block.connected_at,
-					}
+				const arenaBlocks = R.reverse(contents) as ArenaBlock[];
+				for (const arenaBlock of arenaBlocks) {
 					const b = await logseq.Editor.appendBlockInPage(
 						page.uuid,
-						makeContent(block),
-						{ properties, }
+						makeContent(arenaBlock),
+						{ properties: makeProperties(arenaBlock) }
 					);
 					if (!firstBlockId && b) {
 						firstBlockId = b.uuid;
@@ -108,8 +103,13 @@ const main = async () => {
 				}
 			}
 
+			// logseq.Editor.exitEditingMode();
 			if (firstBlockId) {
-				logseq.Editor.scrollToBlockInPage(page.uuid, firstBlockId);
+				logseq.Editor.scrollToBlockInPage(
+					page.uuid,
+					firstBlockId,
+					// { replaceState: false }
+				);
 			}
 		}
 	);
