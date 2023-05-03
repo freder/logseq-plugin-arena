@@ -1,12 +1,14 @@
 import '@logseq/libs';
 import * as R from 'ramda';
+import { baseUrl } from './constants';
+import { makeContent, makeProperties } from './utils';
+import { getChannel, getChannelBlocks, perPage } from './utils/api';
+
 import type {
 	SettingSchemaDesc,
 	// SimpleCommandKeybinding
 } from '@logseq/libs/dist/LSPlugin';
-import { makeContent, makeProperties } from './utils';
-import { getChannel, getChannelBlocks, perPage } from './utils/api';
-import type { ArenaBlock } from 'arena-ts/dist/arena_api_types';
+import type { ArenaBlock, ArenaChannel } from 'arena-ts/dist/arena_api_types';
 
 
 const accessToken = 'arenaAccessToken';
@@ -62,12 +64,13 @@ const main = async () => {
 				return;
 			}
 
-			const channel = await getChannel(token, slug);
+			const channel = (await getChannel(token, slug)) as ArenaChannel;
 
 			// create new page
 			const page = await logseq.Editor.createPage(
 				`Are.na channel: ${channel.title}`,
-				{},
+				// @ts-ignore
+				{ 'channel-url': `${baseUrl}/${channel.owner.slug}/${channel.slug}` },
 				{
 					format: 'markdown',
 					createFirstBlock: false,

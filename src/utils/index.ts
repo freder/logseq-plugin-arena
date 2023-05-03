@@ -1,7 +1,5 @@
 import type { ArenaBlock } from 'arena-ts';
-
-
-const baseUrl = 'https://www.are.na';
+import { baseUrl } from '../constants';
 
 
 export const makeProperties = (arenaBlock: ArenaBlock) => {
