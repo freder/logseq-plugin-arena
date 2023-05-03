@@ -32,6 +32,11 @@ export const getAccessToken = (settings: Settings) => {
 };
 
 
+export const formatDate = (date: string) => {
+	return date.split('.')[0].replace('T', ' ');
+};
+
+
 export const makeProperties = (arenaBlock: ArenaBlock) => {
 	const {
 		id,
@@ -41,7 +46,7 @@ export const makeProperties = (arenaBlock: ArenaBlock) => {
 	const properties = {
 		// class: arenaBlock.class,
 		'block-url': `${baseUrl}/block/${id}`,
-		'connected-at': connected_at,
+		'connected-at': formatDate(connected_at),
 	};
 	return properties;
 };
