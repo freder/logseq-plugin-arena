@@ -16,15 +16,22 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@emotion/react": "^11.10.8",
     "@logseq/libs": "^0.0.14",
     "arena-ts": "^0.1.4",
-    "ramda": "^0.29.0"
+    "ramda": "^0.29.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
   },
   "devDependencies": {
     "@types/ramda": "^0.29.0",
+    "@types/react": "^18.2.2",
+    "@types/react-dom": "^18.2.3",
     "@typescript-eslint/eslint-plugin": "^5.55.0",
     "eslint": "^8.36.0",
     "eslint-plugin-functional": "^5.0.6",
+    "eslint-plugin-react": "^7.32.2",
+    "eslint-plugin-react-hooks": "^4.6.0",
     "typescript": "^5.0.3",
     "vite": "^4.2.0"
   }

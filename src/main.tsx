@@ -1,5 +1,9 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
 import '@logseq/libs';
 import * as R from 'ramda';
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+
 import { baseUrl } from './constants';
 import { makeContent, makeProperties } from './utils';
 import { getChannel, getChannelBlocks, perPage } from './utils/api';
@@ -9,6 +13,7 @@ import type {
 	// SimpleCommandKeybinding
 } from '@logseq/libs/dist/LSPlugin';
 import type { ArenaBlock, ArenaChannel } from 'arena-ts/dist/arena_api_types';
+import App from './components/App';
 
 
 const accessToken = 'arenaAccessToken';
@@ -30,6 +35,14 @@ const main = async () => {
 	}
 
 	logseq.useSettingsSchema(settingsSchema);
+
+	const mount = document.getElementById('mount') as HTMLElement;
+	const root = ReactDOM.createRoot(mount);
+	root.render(
+		// <React.StrictMode>
+		<App />
+		// </React.StrictMode>
+	);
 
 	const settings = logseq.settings;
 	if (!settings) {
