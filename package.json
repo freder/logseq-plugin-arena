@@ -16,7 +16,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@emotion/react": "^11.10.8",
+    "@emotion/css": "^11.10.8",
     "@logseq/libs": "^0.0.14",
     "arena-ts": "^0.1.4",
     "ramda": "^0.29.0",

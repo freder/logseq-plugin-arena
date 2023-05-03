@@ -1,6 +1,10 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 import React, { useEffect } from 'react';
+import { css } from '@emotion/css';
+
 import { importChannel } from '../utils';
+import { getStyles } from '../utils/theme';
+
 import type { Action } from '../types';
 
 
@@ -36,6 +40,12 @@ function App() {
 		[]
 	);
 
+	const styles = getStyles();
+	const bg = document.getElementById('backdrop');
+	if (bg) {
+		bg.style.backgroundColor = styles.bg;
+	}
+
 	return <div
 		onKeyDown={(event) => {
 			event.stopPropagation();
@@ -44,18 +54,32 @@ function App() {
 			}
 		}}
 	>
-		{action === 'import-channel' && <div id="import-channel">
-			<input
-				id="import-channel-url"
-				type="text"
-				placeholder="Channel URL"
-				autoFocus
-				onKeyDown={(event) => {
-					if (event.key === 'Enter') {
-						importHandler();
-					}
-				}}
-			/>
+		{action === 'import-channel' && <div
+			id="import-channel"
+			className={css`
+				.container {
+					padding: 1.5em;
+					background-color: ${styles.bgSelection};
+				}
+
+				input {
+					border-radius: 0;
+				}
+			`}
+		>
+			<div className="container">
+				<input
+					id="import-channel-url"
+					type="text"
+					placeholder="Channel URL"
+					autoFocus
+					onKeyDown={(event) => {
+						if (event.key === 'Enter') {
+							importHandler();
+						}
+					}}
+				/>
+			</div>
 			{/* <button onClick={() => importHandler()}>
 				Import
 			</button>
