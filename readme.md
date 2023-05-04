@@ -13,5 +13,5 @@
 
 ---
 
-- [x] Import channels via `Import Are.na channel` command
-- [ ] Export Logseq as Are.na channel
+- [x] Import channels via `Import Are.na channel` command (will create a new page)
+- [ ] Export Logseq page as new Are.na channel
