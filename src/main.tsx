@@ -40,7 +40,7 @@ const main = async () => {
 	logseq.App.registerCommandPalette(
 		{
 			key: 'import-arena-channel',
-			label: 'Import Are.na channel…',
+			label: 'Import Are.na channel',
 			// keybinding: keyBinding,
 		},
 		async () => {
