@@ -85,12 +85,9 @@ export const makeContent = (block: ArenaBlock): string => {
 
 export const importChannel = async (url: string) => {
 	// https://www.are.na/frederic-brodbeck/asdf;
-	if (!url) {
-		return;
-	}
-	const slug = R.last(url.split('/'));
-	if (!slug) {
-		return;
+	const slug = R.last((url || '').split('/'));
+	if (!slug || slug === '') {
+		return true;
 	}
 
 	const settings = getSettings();
@@ -102,6 +99,11 @@ export const importChannel = async (url: string) => {
 		return;
 	}
 	const channel = (await getChannel(token, slug)) as ArenaChannel;
+	if ('message' in channel) {
+		// @ts-expect-error
+		alert(`${channel.message}:\n${channel.description}`);
+		return;
+	}
 
 	// create new page
 	const page = await logseq.Editor.createPage(
@@ -115,7 +117,7 @@ export const importChannel = async (url: string) => {
 		}
 	);
 	if (!page) {
-		console.error('could not create page');
+		alert('failed to create page');
 		return;
 	}
 

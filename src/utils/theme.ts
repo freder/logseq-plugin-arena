@@ -9,9 +9,9 @@ export const getStyles = () => {
 	const bgSelection = computedStyles.getPropertyValue(
 		'--ls-a-chosen-bg'
 	);
-	// const text = computedStyles.getPropertyValue(
-	// 	'--ls-primary-text-color'
-	// );
+	const text = computedStyles.getPropertyValue(
+		'--ls-primary-text-color'
+	);
 	// const textSelection = computedStyles.getPropertyValue(
 	// 	'--ls-secondary-text-color'
 	// );
@@ -21,7 +21,7 @@ export const getStyles = () => {
 	return {
 		bg,
 		bgSelection,
-		// text,
+		text,
 		// textSelection,
 		// input,
 	};

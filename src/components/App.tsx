@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
-import React, { useEffect } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { css } from '@emotion/css';
 
 import { importChannel } from '../utils';
@@ -14,13 +14,16 @@ function App() {
 		setAction(undefined);
 	};
 
-	const importHandler = () => {
+	const importHandler = async () => {
 		const input = document.getElementById('import-channel-url') as HTMLInputElement;
-		importChannel(input.value);
-		closeHandler();
+		const keepOpen = await importChannel(input.value);
+		if (!keepOpen) {
+			closeHandler();
+		}
 	};
 
 	const [action, setAction] = React.useState<Action | undefined>(undefined);
+	const [styles, /* setStyles */] = React.useState(getStyles());
 
 	useEffect(
 		() => {
@@ -40,38 +43,61 @@ function App() {
 		[]
 	);
 
-	const styles = getStyles();
-	const bg = document.getElementById('backdrop');
-	if (bg) {
-		bg.style.backgroundColor = styles.bg;
-	}
 
-	return <div
-		onKeyDown={(event) => {
-			event.stopPropagation();
-			if (event.key === 'Escape') {
-				closeHandler();
+	useEffect(
+		() => {
+			const bg = document.getElementById('backdrop');
+			if (bg) {
+				bg.style.backgroundColor = styles.bg;
 			}
-		}}
-	>
-		{action === 'import-channel' && <div
-			id="import-channel"
-			className={css`
+
+			const keydownHandler = (event: KeyboardEvent) => {
+				if (event.key === 'Escape') {
+					closeHandler();
+				}
+			};
+			window.addEventListener('keydown', keydownHandler);
+			return () => {
+				window.removeEventListener('keydown', keydownHandler);
+			};
+		},
+		[styles]
+	);
+
+	const importStyles = useMemo(
+		() => {
+			return css`
 				.container {
 					padding: 1.5em;
+					padding-bottom: 1.25em;
 					background-color: ${styles.bgSelection};
 				}
 
 				input {
 					border-radius: 0;
 				}
-			`}
+
+				.hints {
+					margin-top: 0.3rem;
+    				font-size: 12px;
+					color: ${styles.text};
+					font-family: sans-serif;
+				}
+			`;
+		},
+		[styles]
+	);
+
+	return <div>
+		{action === 'import-channel' && <div
+			id="import-channel"
+			className={importStyles}
 		>
 			<div className="container">
 				<input
 					id="import-channel-url"
 					type="text"
-					placeholder="Channel URL"
+					placeholder="Channel URL / slug"
 					autoFocus
 					onKeyDown={(event) => {
 						if (event.key === 'Enter') {
@@ -79,6 +105,10 @@ function App() {
 						}
 					}}
 				/>
+				<div className="hints">
+					<div><code>{'<enter>'}</code> to confirm</div>
+					<div><code>{'<esc>'}</code> to cancel</div>
+				</div>
 			</div>
 			{/* <button onClick={() => importHandler()}>
 				Import
