@@ -1,6 +1,6 @@
 {
   "name": "logseq-plugin-arena",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "main": "dist/index.html",
   "logseq": {
     "id": "logseq-plugin-arena",
