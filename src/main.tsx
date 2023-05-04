@@ -1,26 +1,14 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
 import '@logseq/libs';
-import * as R from 'ramda';
-import { baseUrl } from './constants';
-import { makeContent, makeProperties } from './utils';
-import { getChannel, getChannelBlocks, perPage } from './utils/api';
+import React from 'react';
+import ReactDOM from 'react-dom/client';
 
-import type {
-	SettingSchemaDesc,
-	// SimpleCommandKeybinding
-} from '@logseq/libs/dist/LSPlugin';
-import type { ArenaBlock, ArenaChannel } from 'arena-ts/dist/arena_api_types';
+// import type { SimpleCommandKeybinding } from '@logseq/libs/dist/LSPlugin';
 
-
-const accessToken = 'arenaAccessToken';
-const settingsSchema: SettingSchemaDesc[] = [
-	{
-		key: accessToken,
-		title: 'Are.na access token',
-		description: '',
-		default: '',
-		type: 'string',
-	},
-];
+import { settingsSchema } from './constants';
+import { Action } from './types';
+import { getAccessToken } from './utils';
+import App from './components/App';
 
 
 const main = async () => {
@@ -30,6 +18,14 @@ const main = async () => {
 	}
 
 	logseq.useSettingsSchema(settingsSchema);
+
+	const mount = document.getElementById('mount') as HTMLElement;
+	const root = ReactDOM.createRoot(mount);
+	root.render(
+		// <React.StrictMode>
+		<App />
+		// </React.StrictMode>
+	);
 
 	const settings = logseq.settings;
 	if (!settings) {
@@ -44,76 +40,19 @@ const main = async () => {
 	logseq.App.registerCommandPalette(
 		{
 			key: 'import-arena-channel',
-			label: 'Import Are.na channel…',
+			label: 'Import Are.na channel',
 			// keybinding: keyBinding,
 		},
 		async () => {
-			const token: string = settings[accessToken];
-			if (!token || token === '') {
-				alert('Please set your Are.na access token in the plugin settings');
-				return;
-			}
-			// TODO: prompt alternative
-			// const response = prompt('Enter the URL or slug of the channel to import');
-			const response = 'https://www.are.na/frederic-brodbeck/type-tool-project';
-			if (!response) {
-				return;
-			}
-			const slug = R.last(response.split('/'));
-			if (!slug) {
+			const token = getAccessToken(settings);
+			if (!token) {
 				return;
 			}
 
-			const channel = (await getChannel(token, slug)) as ArenaChannel;
-
-			// create new page
-			const page = await logseq.Editor.createPage(
-				`Are.na channel: ${channel.title}`,
-				// @ts-ignore
-				{ 'channel-url': `${baseUrl}/${channel.owner.slug}/${channel.slug}` },
-				{
-					format: 'markdown',
-					createFirstBlock: false,
-					redirect: true,
-				}
-			);
-			if (!page) {
-				console.error('could not create page');
-				return;
-			}
-
-			const totalPages = Math.ceil(channel.length / perPage);
-			const pageNums = R.reverse(
-				R.range(1, totalPages + 1)
-			);
-
-			let firstBlockId: string | undefined = undefined;
-
-			for (const pageNum of [pageNums[0]]) {
-				const { contents } = await getChannelBlocks(
-					token, channel.id, pageNum
-				);
-				const arenaBlocks = R.reverse(contents) as ArenaBlock[];
-				for (const arenaBlock of arenaBlocks) {
-					const b = await logseq.Editor.appendBlockInPage(
-						page.uuid,
-						makeContent(arenaBlock),
-						{ properties: makeProperties(arenaBlock) }
-					);
-					if (!firstBlockId && b) {
-						firstBlockId = b.uuid;
-					}
-				}
-			}
-
-			// logseq.Editor.exitEditingMode();
-			if (firstBlockId) {
-				logseq.Editor.scrollToBlockInPage(
-					page.uuid,
-					firstBlockId,
-					// { replaceState: false }
-				);
-			}
+			const action: Action = 'import-channel';
+			// @ts-expect-error
+			window._action = action;
+			logseq.showMainUI({ autoFocus: true });
 		}
 	);
 };

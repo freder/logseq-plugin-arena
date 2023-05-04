@@ -1,6 +1,6 @@
 {
 	"title": "Are.na",
-	"description": "TODO: description",
+	"description": "Logseq plugin for Are.na",
 	"author": "freder",
 	"repo": "freder/logseq-plugin-arena",
 	"icon": "icon.png",
