@@ -14,4 +14,6 @@
 ---
 
 - [x] Import channels via `Import Are.na channel` command (will create a new page)
+	- [ ] (option to) download media files, instead of linking to them
 - [ ] Export Logseq page as new Are.na channel
+- [ ] import entire are.na account as logseq graph
