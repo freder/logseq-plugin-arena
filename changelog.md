@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.X.0
+## 0.2.0
 ### Added
 - Convert markdown lists to Logseq blocks
 
