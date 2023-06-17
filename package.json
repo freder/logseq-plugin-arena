@@ -1,6 +1,6 @@
 {
   "name": "logseq-plugin-arena",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "main": "dist/index.html",
   "logseq": {
     "id": "logseq-plugin-arena",
@@ -17,7 +17,7 @@
   },
   "dependencies": {
     "@emotion/css": "^11.10.8",
-    "@logseq/libs": "^0.0.14",
+    "@logseq/libs": "^0.0.15",
     "arena-ts": "^0.1.4",
     "marked": "^5.0.1",
     "ramda": "^0.29.0",

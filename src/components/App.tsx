@@ -14,9 +14,15 @@ function App() {
 		setAction(undefined);
 	};
 
-	const importHandler = async () => {
+	const importHandler = async (
+		createChannelProperties: boolean,
+		createBlockProperties: boolean
+	) => {
 		const input = document.getElementById('import-channel-url') as HTMLInputElement;
-		const keepOpen = await importChannel(input.value);
+		const keepOpen = await importChannel(input.value, {
+			createChannelProperties,
+			createBlockProperties
+		});
 		if (!keepOpen) {
 			closeHandler();
 		}
@@ -24,6 +30,8 @@ function App() {
 
 	const [action, setAction] = React.useState<Action | undefined>(undefined);
 	const [styles, /* setStyles */] = React.useState(getStyles());
+	const [createChannelProperties, setCreateChannelProperties] = React.useState(true);
+	const [createBlockProperties, setCreateBlockProperties] = React.useState(true);
 
 	useEffect(
 		() => {
@@ -75,20 +83,34 @@ function App() {
 
 				input {
 					border-radius: 0;
+					border: none;
+					outline: none;
+					padding: 5px;
 				}
 
+				#import-channel-url {
+					width: 100%;
+				}
+
+				.options,
 				.hints {
-					margin-top: 0.3rem;
+					margin-top: 5px;
     				font-size: 12px;
 					color: ${styles.text};
 					font-family: sans-serif;
+				}
+
+				.options > div {
+					font-size: 1rem;
+					display: flex;
+					align-items: center;
 				}
 			`;
 		},
 		[styles]
 	);
 
-	return <div>
+	return <div style={{ width: 400 }}>
 		{action === 'import-channel' && <div
 			id="import-channel"
 			className={importStyles}
@@ -101,10 +123,43 @@ function App() {
 					autoFocus
 					onKeyDown={(event) => {
 						if (event.key === 'Enter') {
-							importHandler();
+							importHandler(
+								createChannelProperties,
+								createBlockProperties
+							);
 						}
 					}}
 				/>
+				<div className='options'>
+					<div>
+						<input
+							type='checkbox'
+							id='add-channel-metadata'
+							name='add-channel-metadata'
+							checked={createChannelProperties}
+							onChange={(event) => {
+								setCreateChannelProperties(event.target.checked);
+							}}
+						/>
+						<label htmlFor="add-channel-metadata">
+							Add channel metadata
+						</label>
+					</div>
+					<div>
+						<input
+							type='checkbox'
+							id='add-block-metadata'
+							name='add-block-metadata'
+							checked={createBlockProperties}
+							onChange={(event) => {
+								setCreateBlockProperties(event.target.checked);
+							}}
+						/>
+						<label htmlFor="add-block-metadata">
+							Add block metadata
+						</label>
+					</div>
+				</div>
 				<div className="hints">
 					<div><code>{'<enter>'}</code> to confirm</div>
 					<div><code>{'<esc>'}</code> to cancel</div>
