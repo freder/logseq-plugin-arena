@@ -88,13 +88,14 @@ function App() {
 		[styles]
 	);
 
-	return <div>
+	return <div style={{ width: 400 }}>
 		{action === 'import-channel' && <div
 			id="import-channel"
 			className={importStyles}
 		>
 			<div className="container">
 				<input
+					style={{ width: '100%' }}
 					id="import-channel-url"
 					type="text"
 					placeholder="Channel URL / slug"
