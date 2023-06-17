@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.X.0
+## 0.3.0
 ### Added
 - Option to create metadata properties for channel and blocks
 
