@@ -1,11 +1,12 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 import * as R from 'ramda';
+import { marked } from 'marked';
 
 import { accessToken, baseUrl } from '../constants';
 import { getChannel, getChannelBlocks, perPage } from './api';
 
-import type { LSPluginBaseInfo } from '@logseq/libs/dist/LSPlugin';
+import type { LSPluginBaseInfo, BlockEntity } from '@logseq/libs/dist/LSPlugin';
 import type { ArenaBlock, ArenaChannel } from 'arena-ts/dist/arena_api_types';
 
 
@@ -37,6 +38,50 @@ export const formatDate = (date: string) => {
 };
 
 
+export const markdownAstToBlocks = async (
+	tree: marked.TokensList,
+	parentBlock: BlockEntity,
+	sibling: boolean
+) => {
+
+	for (const item of tree) {
+		if (item.type === 'space') {
+			// ignore empty lines
+			continue;
+		}
+		if (item.type === 'list') {
+			// list is only a container for `list_item`s
+			await markdownAstToBlocks(
+				// @ts-expect-error
+				item.items,
+				parentBlock,
+				sibling
+			);
+		} else if (item.type === 'list_item') {
+			const b = await logseq.Editor.insertBlock(
+				parentBlock.uuid,
+				// @ts-expect-error
+				item.tokens[0].text,
+				{ sibling }
+			);
+			await markdownAstToBlocks(
+				// @ts-expect-error
+				R.tail(item.tokens),
+				b!,
+				false
+			);
+		} else {
+			await logseq.Editor.insertBlock(
+				parentBlock.uuid,
+				// @ts-expect-error
+				item.text,
+				{ sibling }
+			);
+		}
+	}
+};
+
+
 export const makeProperties = (arenaBlock: ArenaBlock) => {
 	const {
 		id,
@@ -54,9 +99,9 @@ export const makeProperties = (arenaBlock: ArenaBlock) => {
 
 export const makeContent = (block: ArenaBlock): string => {
 	switch (block.class) {
-		case 'Text': {
-			return block.content!;
-		}
+		// case 'Text': {
+		// 	return block.content!;
+		// }
 		case 'Link': {
 			return block.source!.url;
 		}
@@ -134,13 +179,48 @@ export const importChannel = async (url: string) => {
 		);
 		const arenaBlocks = R.reverse(contents) as ArenaBlock[];
 		for (const arenaBlock of arenaBlocks) {
-			const b = await logseq.Editor.appendBlockInPage(
-				page.uuid,
-				makeContent(arenaBlock),
-				{ properties: makeProperties(arenaBlock) }
-			);
-			if (!firstBlockId && b) {
-				firstBlockId = b.uuid;
+			const properties = makeProperties(arenaBlock);
+			if (arenaBlock.class === 'Text') {
+				const content = arenaBlock.content!;
+				const data = marked.lexer(content);
+
+				// check if there is a list in the markdown
+				const containsList = R.any(
+					(item) => item.type === 'list',
+					data
+				);
+
+				if (!containsList) {
+					const b = await logseq.Editor.appendBlockInPage(
+						page.uuid,
+						content,
+						{ properties }
+					);
+					// TODO: DRY
+					if (!firstBlockId && b) {
+						firstBlockId = b.uuid;
+					}
+				} else {
+					// create an empty block
+					const b = await logseq.Editor.appendBlockInPage(
+						page.uuid,
+						'',
+						{ properties }
+					);
+					if (!firstBlockId && b) {
+						firstBlockId = b.uuid;
+					}
+					await markdownAstToBlocks(data, b!, false);
+				}
+			} else {
+				const b = await logseq.Editor.appendBlockInPage(
+					page.uuid,
+					makeContent(arenaBlock),
+					{ properties }
+				);
+				if (!firstBlockId && b) {
+					firstBlockId = b.uuid;
+				}
 			}
 		}
 	}
