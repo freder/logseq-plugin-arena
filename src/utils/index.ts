@@ -128,7 +128,13 @@ export const makeContent = (block: ArenaBlock): string => {
 };
 
 
-export const importChannel = async (url: string) => {
+export const importChannel = async (
+	url: string,
+	options: {
+		createChannelProperties: boolean,
+		createBlockProperties: boolean,
+	}
+) => {
 	// https://www.are.na/frederic-brodbeck/asdf;
 	const slug = R.last((url || '').split('/'));
 	if (!slug || slug === '') {
@@ -153,8 +159,10 @@ export const importChannel = async (url: string) => {
 	// create new page
 	const page = await logseq.Editor.createPage(
 		`Are.na channel: ${channel.title}`,
-		// @ts-ignore
-		{ 'channel-url': `${baseUrl}/${channel.owner.slug}/${channel.slug}` },
+		(options.createChannelProperties)
+			// @ts-expect-error
+			? { 'channel-url': `${baseUrl}/${channel.owner.slug}/${channel.slug}` }
+			: {},
 		{
 			format: 'markdown',
 			createFirstBlock: false,
@@ -179,7 +187,9 @@ export const importChannel = async (url: string) => {
 		);
 		const arenaBlocks = R.reverse(contents) as ArenaBlock[];
 		for (const arenaBlock of arenaBlocks) {
-			const properties = makeProperties(arenaBlock);
+			const properties = (options.createBlockProperties)
+				? makeProperties(arenaBlock)
+				: {};
 			if (arenaBlock.class === 'Text') {
 				const content = arenaBlock.content!;
 				const data = marked.lexer(content);

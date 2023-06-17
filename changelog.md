@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.X.0
+### Added
+- Option to create metadata properties for channel and blocks
+
 ## 0.2.0
 ### Added
 - Convert markdown lists to Logseq blocks
